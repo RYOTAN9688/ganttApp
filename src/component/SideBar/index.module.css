@@ -1,0 +1,183 @@
+/* ./index.module.css */
+
+.sidebar {
+  width: 250px; /* 少し広げる */
+  height: 100vh;
+  background-color: #f9f9f9; /* より明るい背景色 */
+  color: #555; /* 少し濃いめの文字色 */
+  padding: 25px; /* 少し広めのパディング */
+  transition: width 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.05); /* より控えめなシャドウ */
+  border-right: 1px solid #eee; /* 細い右ボーダー */
+}
+
+.sidebar.collapsed {
+  width: 30px; /* 折りたたみ時の幅を少し広げる */
+}
+
+.darkTheme {
+  background-color: #282a36; /* ダークモードの背景色 */
+  color: #f8f8f2; /* ダークモードの文字色 */
+  border-right: 1px solid #444; /* ダークモードのボーダー色 */
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.15); /* ダークモードのシャドウ */
+}
+
+.darkTheme .header h2 {
+  color: #f8f8f2;
+}
+
+.darkTheme .menu a {
+  color: #f8f8f2;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px; /* 少し大きめのマージン */
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 1.6rem; /* 少し大きく */
+  font-weight: 500; /* 少し細く */
+}
+
+.collapseButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5rem; /* 少し大きく */
+  padding: 8px;
+  outline: none;
+  color: #999; /* 少し薄い色 */
+  transition: color 0.3s ease;
+}
+
+.collapseButton:hover {
+  color: #333;
+}
+
+.darkTheme .collapseButton {
+  color: #bbb;
+}
+
+.darkTheme .collapseButton:hover {
+  color: #fff;
+}
+
+.themeSwitcher {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30px; /* 少し大きめのマージン */
+}
+
+.themeButton {
+  background: none;
+  border: 1px solid #ccc;
+  border-radius: 8px; /* 少し丸く */
+  padding: 10px 33px; /* 少し大きめのパディング */
+  cursor: pointer;
+  margin-right: 10px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: background-color 0.3s ease, color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.themeButton.active {
+  border-color: #007bff;
+  color: #007bff;
+  font-weight: 500;
+  background-color: rgba(0, 123, 255, 0.1); /* アクティブなボタンの背景色 */
+}
+
+.themeButton:hover {
+  background-color: #eee;
+  border-color: #bbb;
+}
+
+.darkTheme .themeButton {
+  border-color: #6c757d;
+  color: #6c757d;
+}
+
+.darkTheme .themeButton.active {
+  border-color: #007bff;
+  color: #007bff;
+  background-color: rgba(
+    0,
+    123,
+    255,
+    0.2
+  ); /* ダークモードのアクティブなボタンの背景色 */
+}
+
+.darkTheme .themeButton:hover {
+  background-color: #343a40;
+  border-color: #555;
+}
+
+.menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menuItem {
+  padding: 10px 0; /* 少し大きめのパディング */
+}
+
+.menuItem a {
+  text-decoration: none;
+  color: #333;
+  display: block;
+  padding: 12px 20px; /* 少し大きめのパディング */
+  border-radius: 8px; /* 少し丸く */
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.menuItem a:hover {
+  background-color: #e9ecef;
+  color: #007bff; /* ホバー時のアクセントカラー */
+}
+
+.darkTheme .menuItem a {
+  color: #f8f8f2;
+}
+
+.darkTheme .menuItem a:hover {
+  background-color: #343a40;
+  color: #007bff; /* ホバー時のアクセントカラー */
+}
+
+/* 折りたたみ時のアイコン配置 */
+.collapsedIcons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  height: 180px; /* アイコンが収まる高さ (調整) */
+  margin-top: 30px; /* 少し大きめのマージン */
+}
+
+.collapsedIcon {
+  width: 30px; /* アイコンサイズを少し大きく */
+  height: 30px;
+  cursor: pointer;
+  opacity: 0.8; /* 少し濃く */
+  transition: opacity 0.3s ease, transform 0.2s ease-in-out; /* 変形アニメーションを追加 */
+}
+
+.collapsedIcon:hover {
+  opacity: 1;
+  transform: scale(1.1); /* ホバー時に少し拡大 */
+}
+
+/* ダークモード時のアイコンを白色にする */
+.darkTheme .collapsedIcon {
+  filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%)
+    contrast(100%);
+}

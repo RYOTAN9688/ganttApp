@@ -1,0 +1,15 @@
+/* src/styles/App.module.css */
+
+.appContainer {
+  display: flex; /* Sidebarとコンテンツを横並びにする */
+  width: 100%;
+  height: 100vh; /* 画面全体に広げる場合 */
+}
+
+.content {
+  flex-grow: 1; /* 残りの領域をコンテンツが占める */
+  padding: 20px; /* コンテンツ周りの余白 */
+  overflow-y: auto; /* コンテンツが長い場合に縦スクロールを許可 */
+}
+
+/* 必要に応じて他のスタイルを追加 */
