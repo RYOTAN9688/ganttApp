@@ -1,12 +1,14 @@
+// src/App.tsx
 import React, { useState } from "react";
 import Sidebar from "./component/SideBar";
 import TaskList from "./component/TaskList/TaskList";
 import styles from "./component/styles/App.module.css";
 import { Task } from "./component/types/task";
-import { initialTasks as initialTasksData } from "./data/initialTask"; // インポート
+import { initialTasks as initialTasksData } from "./data/initialTask";
+import GanttChart from "./component/GanttChart"; // Import GanttChart
 
 const App: React.FC = () => {
-  const [tasks, setTasks] = useState<Task[]>(initialTasksData); // インポートしたデータを使用
+  const [tasks, setTasks] = useState<Task[]>(initialTasksData);
 
   const addTask = (newTask: Task) => {
     setTasks([...tasks, newTask]);
@@ -18,8 +20,8 @@ const App: React.FC = () => {
     <div className={styles.appContainer}>
       <Sidebar items={menuItems} />
       <div className={styles.content}>
-        <h2>タスク一覧</h2>
         <TaskList tasks={tasks} onAddTask={addTask} />
+        <GanttChart tasks={tasks} /> {/* Render GanttChart */}
       </div>
     </div>
   );

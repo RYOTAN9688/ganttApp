@@ -65,6 +65,6 @@ button:focus-visible {
 }
 
 .dark-theme {
-  background-color: #333; /* ダークモードの背景色 */
+  background-color: rgb(42, 43, 45); /* ダークモードの背景色 */
   color: #eee; /* ダークモードの文字色 */
 }

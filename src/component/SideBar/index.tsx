@@ -25,7 +25,7 @@ const Sidebar: React.FC<SidebarProps> = ({ items }) => {
       }`}
     >
       <div className={styles.header}>
-        {!isCollapsed && <h2>ガントチャート</h2>} {/* 折りたたみ時非表示 */}
+        {!isCollapsed && <h3>ガントチャート</h3>} {/* 折りたたみ時非表示 */}
         <button onClick={toggleCollapse} className={styles.collapseButton}>
           &lt;
         </button>

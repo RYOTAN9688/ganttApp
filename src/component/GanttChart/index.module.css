@@ -1,0 +1,81 @@
+/* src/component/GanttChart.module.css */
+.ganttChart {
+  width: 100%;
+  overflow-x: auto; /* 必要に応じて水平スクロールを有効にする */
+  padding: 20px;
+  background-color: #f4f5f7; /* 明るい背景色 */
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.timeline {
+  position: relative;
+  height: auto; /* 自動調整 */
+  min-width: 800px; /* 水平表示なので幅を広めに設定 */
+  padding: 20px 0;
+}
+
+.taskRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.taskName {
+  width: 150px; /* タスク名の幅 */
+  margin-right: 10px;
+  font-size: 0.9em;
+  color: #333;
+}
+
+.taskBarContainer {
+  position: relative;
+  height: 20px; /* タスクバーの高さ */
+  background-color: #e0e0e0; /* バーの背景色 */
+  border-radius: 4px;
+  flex-grow: 1; /* 残りのスペースを埋める */
+}
+
+.task {
+  position: absolute;
+  background-color: #007bff; /* 主要なタスクの色 */
+  color: white;
+  height: 100%;
+  border-radius: 4px;
+  font-size: 0.8em;
+  line-height: 20px; /* バーの高さと同じにして中央揃え */
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s ease;
+}
+
+.task:hover {
+  background-color: #0056b3;
+}
+
+.childTask {
+  background-color: #6c757d; /* 子タスクの色 */
+}
+
+.childTask:hover {
+  background-color: #545b62;
+}
+
+/* 必要に応じて日付軸のスタイルを追加 */
+.dateAxis {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  margin-top: 10px;
+  border-top: 1px solid #ccc;
+  font-size: 0.8em;
+  color: #777;
+}
+
+.dateLabel {
+  flex-basis: calc(100% / 7); /* 仮に7日ごとのラベル */
+  text-align: center;
+}

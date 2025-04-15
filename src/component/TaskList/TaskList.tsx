@@ -6,15 +6,15 @@ import UserForm from "./UserForm";
 
 interface TaskListProps {
   tasks: Task[];
-  onAddTask: (newTask: Task) => void;
+  onAddTask: (newTask: Task) => void; // 親コンポーネントからタスク追加関数を受け取る
 }
 
 const TaskList: React.FC<TaskListProps> = ({ tasks, onAddTask }) => {
-  const [sortBy, setSortBy] = useState<keyof Task | null>("name");
+  const [sortBy, setSortBy] = useState<keyof Task | null>("name"); // 初期ソート対象をnameとする
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [isAddingTask, setIsAddingTask] = useState(false);
 
-  const Tasks = useMemo(() => {
+  const sortedTasks = useMemo(() => {
     if (!sortBy) {
       return tasks;
     }
@@ -49,10 +49,12 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onAddTask }) => {
           }
           return 0;
         }
+        // 他の型に対する比較ロジックが必要な場合はここに追加
       }
       return 0; // 比較できない場合は順序を維持
     };
 
+    // childrenがある場合は、親要素を先にソートし、子要素はそのままの順序とする（簡易的な実装）
     const sortWithChildren = (taskList: Task[]): Task[] => {
       const sorted = [...taskList].sort(compare);
       return sorted.map((task) => ({
@@ -95,46 +97,40 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onAddTask }) => {
   };
 
   return (
-    <div className={styles.taskList}>
-      {isAddingTask && (
-        <div
-          className={styles.modalOverlay}
-          onClick={handleCancelAddTask}
-        ></div>
-      )}
+    <div className={styles.taskListContainer}>
       {isAddingTask && (
         <UserForm onSave={handleSaveNewTask} onCancel={handleCancelAddTask} />
       )}
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th onClick={() => handleSort("name")}>
-              工程{" "}
-              <span className={styles.sortIcon}>{getSortIcon("name")}</span>
-            </th>
-            <th onClick={() => handleSort("startDate")}>
-              開始日{" "}
-              <span className={styles.sortIcon}>
-                {getSortIcon("startDate")}
-              </span>
-            </th>
-            <th onClick={() => handleSort("endDate")}>
-              終了日{" "}
-              <span className={styles.sortIcon}>{getSortIcon("endDate")}</span>
-            </th>
-            <th>
-              <button className={styles.addButton} onClick={handleAddTaskClick}>
-                +
-              </button>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {Tasks.map((task) => (
-            <TaskRow key={task.id} task={task} />
-          ))}
-        </tbody>
-      </table>
+      <div className={styles.header}>
+        <div className={styles.headerItem} onClick={() => handleSort("name")}>
+          タスク名
+          <span className={styles.sortIcon}>{getSortIcon("name")}</span>
+        </div>
+        <div
+          className={styles.headerItem}
+          onClick={() => handleSort("startDate")}
+        >
+          開始日
+          <span className={styles.sortIcon}>{getSortIcon("startDate")}</span>
+        </div>
+        <div
+          className={styles.headerItem}
+          onClick={() => handleSort("endDate")}
+        >
+          終了日
+          <span className={styles.sortIcon}>{getSortIcon("endDate")}</span>
+        </div>
+        <div className={styles.headerItem}>
+          <button className={styles.addButton} onClick={handleAddTaskClick}>
+            +
+          </button>
+        </div>
+      </div>
+      <div className={styles.taskItems}>
+        {sortedTasks.map((task) => (
+          <TaskRow key={task.id} task={task} onAddTask={onAddTask} />
+        ))}
+      </div>
     </div>
   );
 };

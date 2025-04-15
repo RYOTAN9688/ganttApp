@@ -1,151 +1,119 @@
-.table {
+.taskListContainer {
   width: 100%;
-  border-collapse: collapse;
-  border-spacing: 0;
-  border-radius: 8px 8px 0 0;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* 軽いシャドウを追加 */
-  margin-bottom: 20px;
+  padding: 10px;
 }
 
-.table th,
-.table td {
-  padding: 16px 20px; /* パディングを少し大きく */
+.header {
+  display: flex;
+  padding: 8px 0;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 10px;
+  align-items: center; /* ヘッダー内のアイテムを垂直方向に中央揃え */
+}
+
+.headerItem {
+  padding: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  white-space: nowrap; /* 長いテキストを折り返さない */
+  overflow: hidden; /* はみ出るテキストを隠す */
+  text-overflow: ellipsis; /* はみ出るテキストを...で表示 */
+}
+
+.headerItem:nth-child(1) {
+  flex: 2; /* タスク名 */
+}
+
+.headerItem:nth-child(2) {
+  flex: 1; /* 開始日 */
   text-align: left;
 }
 
-.table th {
-  background-color: #f9f9f9; /* より明るいグレー */
-  font-weight: 600;
-  color: #333;
+.headerItem:nth-child(3) {
+  flex: 1; /* 終了日 */
+  text-align: left;
 }
 
-.table tbody tr {
-  border-bottom: 1px solid #eee; /* 行の下に薄い区切り線 */
+.headerItem:nth-child(4) {
+  flex: 0.5; /* ボタン */
+  text-align: right; /* ボタンを右寄せ */
 }
 
-.table tbody tr:last-child {
+.taskItems {
+  margin-bottom: 10px;
+}
+
+.taskItem {
+  display: flex;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+  align-items: center;
+}
+
+.taskItem:last-child {
   border-bottom: none;
 }
 
-.table tbody tr:hover {
-  background-color: #f5f5f5;
+.taskNameCell {
+  flex: 2;
+  padding: 8px;
+  display: flex;
+  align-items: center;
 }
 
-.sortIcon {
-  margin-left: 8px; /* 余白を少し大きく */
+.taskDate {
+  flex: 1;
+  padding: 8px;
+}
+
+.taskEndDate {
+  flex: 1;
+  padding: 8px;
+}
+
+.taskActions {
+  flex: 0.5;
+  padding: 8px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.expandIcon {
+  margin-right: 8px;
   cursor: pointer;
-  color: #777;
+}
+
+.addChildButton {
+  padding: 5px 10px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+}
+
+.addChildButton:hover {
+  background-color: #1e7e34;
 }
 
 .addButton {
-  padding: 10px 15px;
+  padding: 5px 10px; /* ボタンのpaddingを小さく */
   background-color: #007bff;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.2s ease-in-out;
+  font-size: 0.9em; /* ボタンのフォントサイズを小さく */
+  transition: background-color 0.3s ease;
+  margin-top: 0; /* ヘッダー内なのでmargin-topは不要 */
 }
 
 .addButton:hover {
   background-color: #0056b3;
 }
 
-.userForm {
-  background-color: #fff;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1000;
-  width: 400px; /* 適切な幅を設定 */
-  max-width: 90%; /* レスポンシブ対応 */
-}
-
-.userForm h3 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #333;
-  margin-top: 0;
-  margin-bottom: 25px;
-  text-align: center;
-}
-
-.formGroup {
-  margin-bottom: 20px;
-}
-
-.formGroup label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 500;
-  color: #555;
-}
-
-.formGroup input[type="text"],
-.formGroup input[type="date"] {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  box-sizing: border-box;
-  font-size: 1rem;
-  transition: border-color 0.2s ease-in-out;
-}
-
-.formGroup input[type="text"]:focus,
-.formGroup input[type="date"]:focus {
-  outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}
-
-.formActions {
-  margin-top: 30px;
-  display: flex;
-  justify-content: flex-end; /* ボタンを右寄せ */
-  gap: 15px;
-}
-
-.formActions button {
-  padding: 12px 20px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.2s ease-in-out;
-}
-
-.formActions button:first-child {
-  background-color: #28a745;
-  color: white;
-}
-
-.formActions button:first-child:hover {
-  background-color: #1e7e34;
-}
-
-.formActions button:last-child {
-  background-color: #f44336;
-  color: white;
-}
-
-.formActions button:last-child:hover {
-  background-color: #d32f2f;
-}
-
-.modalOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 999;
+.sortIcon {
+  margin-left: 5px;
+  font-size: 0.8em;
 }
