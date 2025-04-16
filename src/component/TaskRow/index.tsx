@@ -1,8 +1,8 @@
 // src/component/TaskRow/TaskRow.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import styles from "./index.module.css";
 import { Task } from "../types/task";
-import UserForm from "../Form/UserForm";
+import UserForm from "../Form";
 
 interface TaskRowProps {
   task: Task;
@@ -20,17 +20,6 @@ const TaskRow: React.FC<TaskRowProps> = ({
   const indentStyle = { paddingLeft: `${indentLevel * 20}px` };
   const [isAddingChild, setIsAddingChild] = useState(false);
 
-  useEffect(() => {
-    console.log(
-      "TaskRow:",
-      task.id,
-      "hasChildren:",
-      hasChildren,
-      "children:",
-      task.children
-    );
-  }, [task.children, task.id, hasChildren]);
-
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
   };
@@ -40,21 +29,11 @@ const TaskRow: React.FC<TaskRowProps> = ({
   };
 
   const handleSaveChildTask = (newTaskData: Omit<Task, "id" | "children">) => {
-    console.log(
-      "TaskRow: handleSaveChildTask が呼び出されました",
-      newTaskData,
-      task.id
-    );
-    console.log("TaskRow: onAddTask の値:", onAddTask);
     if (onAddTask) {
       onAddTask(
         { id: Date.now().toString(), ...newTaskData, children: [] },
         task.id
       );
-      console.log("TaskRow: onAddTask (子タスク) が呼び出されました", {
-        newTaskData,
-        parentId: task.id,
-      });
       setIsAddingChild(false);
     }
   };

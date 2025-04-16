@@ -1,7 +1,7 @@
 // src/App.tsx
 import React, { useState } from "react";
 import Sidebar from "./component/SideBar";
-import TaskList from "./component/TaskList/TaskList";
+import TaskList from "./component/TaskList";
 import styles from "./component/styles/App.module.css";
 import { Task } from "./component/types/task";
 import { initialTasks as initialTasksData } from "./data/initialTask";

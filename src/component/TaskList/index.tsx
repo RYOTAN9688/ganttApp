@@ -2,8 +2,8 @@
 import React, { useState, useMemo } from "react";
 import styles from "./index.module.css";
 import { Task } from "../types/task";
-import TaskRow from "../TaskRow/TaskRow";
-import UserForm from "../Form/UserForm";
+import TaskRow from "../TaskRow";
+import UserForm from "../Form";
 
 interface TaskListProps {
   tasks: Task[];
@@ -88,17 +88,12 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onAddTask, setTasks }) => {
   };
 
   const handleSaveNewTask = (newTaskData: Omit<Task, "id" | "children">) => {
-    console.log("TaskList: handleSaveNewTask が呼び出されました", newTaskData);
     const newTask: Task = {
       id: nextTopLevelId.toString(),
       ...newTaskData,
       children: [],
     };
     onAddTask(newTask);
-    console.log(
-      "TaskList: onAddTask (トップレベル) が呼び出されました",
-      newTask
-    );
     setNextTopLevelId((prevId) => prevId + 1);
     setIsAddingTask(false);
   };
@@ -108,11 +103,6 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onAddTask, setTasks }) => {
   };
 
   const handleAddTaskToParent = (newTask: Task, parentId: string) => {
-    console.log("TaskList: handleAddTaskToParent が呼び出されました", {
-      newTask,
-      parentId,
-    });
-
     const updateTasks = (taskList: Task[]): Task[] => {
       return taskList.map((task) => {
         if (task.id === parentId) {
@@ -132,7 +122,6 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onAddTask, setTasks }) => {
     };
 
     const updatedTaskList = updateTasks([...tasks]);
-    console.log("TaskList: 更新後のタスクリスト:", updatedTaskList);
     setTasks(updatedTaskList);
   };
 
