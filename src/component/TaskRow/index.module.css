@@ -1,9 +1,12 @@
+/* src/component/TaskRow/index.module.css */
 .taskItem {
   display: flex;
-  padding: 14px 16px;
+  padding: 0; /* taskContent にpaddingを適用するため、taskItemからは削除 */
   border-bottom: 1px solid #f0f0f0;
   align-items: center;
   transition: background-color 0.2s ease-in-out;
+  width: 100%;
+  cursor: pointer; /* 行全体をクリック可能にする */
 }
 
 .taskItem:last-child {
@@ -15,9 +18,16 @@
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
+.taskContent {
+  display: flex;
+  padding: 14px 16px; /* padding を適用 */
+  align-items: center;
+  width: 100%;
+}
+
 .taskNameCell {
   flex: 2;
-  padding: 14px 12px;
+  padding-right: 12px; /* 右側のpadding */
   display: flex;
   align-items: center;
   text-align: left;
@@ -26,28 +36,28 @@
 
 .taskDate {
   flex: 1;
-  padding: 14px 12px;
+  padding-left: 12px; /* 左側のpadding */
   text-align: left;
   font-size: 0.9em;
 }
 
 .taskEndDate {
   flex: 1;
-  padding: 14px 12px;
+  padding-left: 12px; /* 左側のpadding */
   text-align: left;
   font-size: 0.9em;
 }
 
 .taskDuration {
   flex: 1;
-  padding: 14px 12px;
+  padding-left: 12px; /* 左側のpadding */
   text-align: left;
   font-size: 0.9em;
 }
 
 .taskActions {
   flex: 0.5;
-  padding: 14px 12px;
+  padding-left: 12px; /* 左側のpadding */
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -70,6 +80,7 @@
   cursor: pointer;
   font-size: 0.9em;
   transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+  margin-left: 8px;
 }
 
 .addChildButton:hover {
