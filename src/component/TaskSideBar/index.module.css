@@ -1,0 +1,111 @@
+/* Default (Willow) Theme Styles */
+.sidebarContainer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 300px;
+  height: 100vh;
+  background-color: #f8f8f8;
+  border-left: 1px solid #ccc;
+  padding: 20px;
+  box-shadow: -2px 0px 5px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+}
+
+h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.closeButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.detailItem {
+  margin-bottom: 15px;
+}
+
+.detailItem label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.detailItem input[type="text"],
+.detailItem input[type="date"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.buttonContainer {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.buttonContainer button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.buttonContainer button:first-child {
+  background-color: #007bff;
+  color: white;
+}
+
+.buttonContainer button:last-child {
+  background-color: #6c757d;
+  color: white;
+}
+
+/* Dark Theme Styles */
+.sidebarContainer.darkTheme {
+  background-color: #282a36;
+  color: #f8f8f2;
+  border-left: 1px solid #444;
+  box-shadow: -2px 0px 5px rgba(0, 0, 0, 0.15);
+}
+
+.sidebarContainer.darkTheme h3 {
+  color: #f8f8f2;
+}
+
+.sidebarContainer.darkTheme .closeButton {
+  color: #bbb;
+}
+
+.sidebarContainer.darkTheme .detailItem label {
+  color: #f8f8f2;
+}
+
+.sidebarContainer.darkTheme .detailItem input[type="text"].darkInput,
+.sidebarContainer.darkTheme .detailItem input[type="date"].darkInput {
+  background-color: #44475a;
+  color: #f8f8f2;
+  border-color: #6272a4;
+}
+
+.sidebarContainer.darkTheme .buttonContainer button:first-child.darkButton {
+  background-color: #6272a4;
+  color: #f8f8f2;
+}
+
+.sidebarContainer.darkTheme .buttonContainer button:last-child.darkButton {
+  background-color: #4d4d4d;
+  color: #f8f8f2;
+}

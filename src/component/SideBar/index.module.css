@@ -1,7 +1,4 @@
-/* ./index.module.css */
-
 .sidebar {
-  width: 200px; /* 少し広げる */
   height: 100vh;
   background-color: #f9f9f9; /* より明るい背景色 */
   color: #555; /* 少し濃いめの文字色 */
@@ -15,6 +12,10 @@
 
 .sidebar.collapsed {
   width: 30px; /* 折りたたみ時の幅を少し広げる */
+}
+
+.sidebar li:hover {
+  background-color: #495057;
 }
 
 .darkTheme {

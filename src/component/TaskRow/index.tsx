@@ -1,125 +1,95 @@
-// src/component/TaskRow/TaskRow.tsx
 import React, { useState } from "react";
 import styles from "./index.module.css";
 import { Task } from "../types/task";
+import { format, differenceInDays } from "date-fns";
 import UserForm from "../Form";
 
 interface TaskRowProps {
   task: Task;
-  level?: number; // indentLevel から level に変更 (現在のロジックに合わせる)
-  onAddTask?: (
-    newTask: Omit<Task, "id" | "parentId">,
-    parentId: string
-  ) => void; // onAddTask の型を修正
-  children?: React.ReactNode; // TaskList から子要素が渡されることを想定
+  level: number;
+  onAddTask: (newTask: Omit<Task, "id" | "parentId">, parentId: string) => void;
+  children?: React.ReactNode;
+  toggleExpand: (taskId: string) => void;
+  expandedTasks: { [taskId: string]: boolean }; // 追加
+  onTaskClick: (task: Task) => void; // New prop to handle task click
 }
 
 const TaskRow: React.FC<TaskRowProps> = ({
   task,
-  level = 0,
+  level,
   onAddTask,
   children,
+  toggleExpand,
+  expandedTasks,
+  onTaskClick, // Receive the new prop
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const hasChildren = !!children; // children prop が存在するかどうかで子を持つか判断
-  const indentStyle = { paddingLeft: `${level * 20}px` };
   const [isAddingChild, setIsAddingChild] = useState(false);
 
-  const toggleExpand = () => {
-    setIsExpanded(!isExpanded);
+  const handleAddChildTask = (newTask: Omit<Task, "id" | "parentId">) => {
+    setIsAddingChild(false);
+    onAddTask(newTask, task.id);
   };
 
-  const handleAddTaskChildClick = () => {
-    setIsAddingChild(true);
-  };
-
-  const handleSaveChildTask = (newTaskData: Omit<Task, "id" | "parentId">) => {
-    // 型を修正
-    if (onAddTask) {
-      onAddTask(
-        {
-          id: Date.now().toString(),
-          ...newTaskData,
-          parentId: task.id,
-        } as Task, // parentId を設定
-        task.id
-      );
-      setIsAddingChild(false);
-    }
-  };
-
-  const handleCancelAddTaskChild = () => {
+  const handleCancelAddChild = () => {
     setIsAddingChild(false);
   };
 
-  const formatDate = (date: Date | null | undefined): string => {
-    // Date 型を修正
-    if (!date) {
-      return "-";
-    }
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const day = date.getDate().toString().padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
+  const duration =
+    task.startDate && task.endDate
+      ? differenceInDays(task.endDate, task.startDate) + 1
+      : "";
 
-  const calculateDuration = (
-    startDate: Date | null | undefined,
-    endDate: Date | null | undefined
-  ): number => {
-    // Date 型を修正
-    if (!startDate || !endDate) {
-      return 0;
-    }
-    const oneDay = 24 * 60 * 60 * 1000;
-    return (
-      Math.round(Math.abs((endDate.getTime() - startDate.getTime()) / oneDay)) +
-      1
-    );
-  };
+  const indent = level * 20; // インデントの幅
+
+  const isExpanded = !!expandedTasks[task.id]; // 展開状態を取得
 
   return (
-    <>
-      <div className={styles.taskItem}>
-        <div className={styles.taskNameCell} style={indentStyle}>
-          {hasChildren && (
-            <span className={styles.expandIcon} onClick={toggleExpand}>
-              {isExpanded ? "▼" : "▶︎"}
+    <div className={styles.taskItem} onClick={() => onTaskClick(task)}>
+      {/* Make the entire row clickable */}
+      <div
+        className={styles.taskContent}
+        style={{ paddingLeft: `${indent + 16}px` }}
+      >
+        <div className={styles.taskNameCell}>
+          {children && (
+            <span
+              className={styles.expandIcon}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleExpand(task.id);
+              }}
+            >
+              {isExpanded ? "▼" : "▶"}
             </span>
           )}
           {task.name}
         </div>
-        <div className={styles.taskDate}>{formatDate(task.startDate)}</div>
+        <div className={styles.taskDate}>
+          {task.startDate ? format(task.startDate, "yyyy/MM/dd") : "-"}
+        </div>
         <div className={styles.taskEndDate}>
-          {task.endDate ? formatDate(task.endDate) : "-"}
+          {task.endDate ? format(task.endDate, "yyyy/MM/dd") : "-"}
         </div>
-        <div className={styles.taskDuration}>
-          {task.endDate && task.startDate
-            ? calculateDuration(task.startDate, task.endDate)
-            : "-"}
-        </div>
+        <div className={styles.taskDuration}>{duration}</div>
         <div className={styles.taskActions}>
           <button
             className={styles.addChildButton}
-            onClick={handleAddTaskChildClick}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsAddingChild(true);
+            }}
           >
             +
           </button>
+          {isAddingChild && (
+            <UserForm
+              onSave={handleAddChildTask}
+              onCancel={handleCancelAddChild}
+            />
+          )}
         </div>
       </div>
-      {isExpanded && children} {/* TaskList から渡された子要素を表示 */}
-      {isAddingChild && (
-        <UserForm
-          initialName="New Child Task"
-          initialStartDate={formatDate(task.startDate)}
-          initialEndDate={
-            task.endDate ? formatDate(task.endDate) : formatDate(task.startDate)
-          }
-          onSave={handleSaveChildTask}
-          onCancel={handleCancelAddTaskChild}
-        />
-      )}
-    </>
+    </div>
   );
 };
 

@@ -1,112 +1,210 @@
-import React, { useMemo } from "react";
+// src/component/GanttChart/index.tsx
+import React, { useMemo, useCallback, useRef, useEffect } from "react";
 import { Task } from "../types/task";
 import styles from "./index.module.css";
+import { format, addDays, differenceInDays } from "date-fns";
+import { ja } from "date-fns/locale";
 
 interface GanttChartProps {
   tasks: Task[];
+  expandedTasks: { [taskId: string]: boolean }; // 追加
 }
 
-const GanttChart: React.FC<GanttChartProps> = ({ tasks }) => {
-  // チャートの時間範囲を決定するための最早と最遅の日付を見つける
+const GanttChart: React.FC<GanttChartProps> = ({ tasks, expandedTasks }) => {
   const [minDate, maxDate] = useMemo(() => {
     if (!tasks || tasks.length === 0) {
-      return [new Date(), new Date()];
+      return [null, null];
     }
-
-    let min = tasks[0].startDate ? new Date(tasks[0].startDate) : new Date();
-    let max = tasks[0].endDate ? new Date(tasks[0].endDate) : new Date();
-
+    let minTime: number | null = null;
+    let maxTime: number | null = null;
     tasks.forEach((task) => {
       if (task.startDate) {
-        min = new Date(Math.min(min.getTime(), task.startDate.getTime()));
+        const startTime = task.startDate.getTime();
+        minTime = minTime !== null ? Math.min(minTime, startTime) : startTime;
       }
       if (task.endDate) {
-        max = new Date(Math.max(max.getTime(), task.endDate.getTime()));
+        const endTime = task.endDate.getTime();
+        maxTime = maxTime !== null ? Math.max(maxTime, endTime) : endTime;
       }
     });
-
-    return [min, max];
+    return [
+      minTime !== null ? new Date(minTime) : null,
+      maxTime !== null ? new Date(maxTime) : null,
+    ];
   }, [tasks]);
 
-  // チャートの総期間を日数で計算する
-  const totalDurationDays = useMemo(() => {
-    if (!minDate || !maxDate) {
-      return 1;
-    }
-    const oneDay = 24 * 60 * 60 * 1000; // 1日のミリ秒数
-    return (
-      Math.round(Math.abs((maxDate.getTime() - minDate.getTime()) / oneDay)) + 1
-    );
+  const chartDays = useMemo(() => {
+    return minDate && maxDate ? differenceInDays(maxDate, minDate) : 0;
   }, [minDate, maxDate]);
 
-  // タスクバーの左端の位置を計算する関数
-  const getTaskLeft = (startDate: Date | null | undefined): number => {
-    if (
-      !minDate ||
-      !totalDurationDays ||
-      totalDurationDays <= 1 ||
-      !startDate
-    ) {
-      return 0;
+  const dateScale = useMemo(() => {
+    if (!minDate || chartDays < 0) {
+      return [];
     }
-    const oneDay = 24 * 60 * 60 * 1000;
-    const daysFromStart = Math.round(
-      Math.abs((startDate.getTime() - minDate.getTime()) / oneDay)
-    );
-    return (daysFromStart / totalDurationDays) * 100; // 全期間に対する割合（パーセント）
-  };
-
-  // タスクバーの幅を計算する関数
-  const getTaskWidth = (
-    startDate: Date | null | undefined,
-    endDate: Date | null | undefined
-  ): number => {
-    if (
-      !totalDurationDays ||
-      totalDurationDays <= 1 ||
-      !startDate ||
-      !endDate
-    ) {
-      return 0;
+    const scale = [];
+    for (let i = 0; i <= chartDays; i++) {
+      scale.push(addDays(minDate, i));
     }
-    const oneDay = 24 * 60 * 60 * 1000;
-    const durationDays =
-      Math.round(Math.abs((endDate.getTime() - startDate.getTime()) / oneDay)) +
-      1;
-    return (durationDays / totalDurationDays) * 100; // 全期間に対する割合（パーセント）
-  };
+    return scale;
+  }, [minDate, chartDays]);
 
-  const getChildTasks = (parentId: string | null): Task[] => {
-    return tasks.filter((task) => task.parentId === parentId);
-  };
+  const getChildTasks = useCallback(
+    (parentId: string | null, taskList: Task[]): Task[] => {
+      return taskList.filter((task) => task.parentId === parentId);
+    },
+    []
+  );
 
-  const renderTaskBars = (
-    parentTaskId: string | null = null,
-    level: number = 0
-  ) => {
-    const childTasks = getChildTasks(parentTaskId);
-    return childTasks.map((task) => (
-      <div
-        key={task.id}
-        className={`${styles.task} ${level > 0 ? styles.childTask : ""}`}
-        style={{
-          left: `${getTaskLeft(task.startDate)}%`,
-          width: `${getTaskWidth(task.startDate, task.endDate)}%`,
-          paddingLeft: `${level * 20}px`, // Indentation for child tasks
-        }}
-      >
-        {task.name}
-        {renderTaskBars(task.id, level + 1)} {/* Recursively render children */}
-      </div>
-    ));
-  };
+  const isTaskVisible = useCallback(
+    (task: Task): boolean => {
+      if (!task.parentId) {
+        return true; // トップレベルタスクは常に表示
+      }
+      return !!expandedTasks[task.parentId]; // 親タスクが展開されていれば表示
+    },
+    [expandedTasks]
+  );
+
+  const rowCounterRef = useRef(0);
+
+  useEffect(() => {
+    rowCounterRef.current = 0; // Reset counter on tasks change or expansion
+  }, [tasks, expandedTasks]);
+
+  const renderTasksWithNesting = useCallback(
+    (parentTaskId: string | null = null, level: number = 0) => {
+      const childTasks = getChildTasks(parentTaskId, tasks).filter(
+        isTaskVisible
+      ); // 可視タスクのみフィルタリング
+      return childTasks.map((task) => {
+        const parentTask = tasks.find((t) => t.id === parentTaskId);
+
+        if (
+          !task.startDate ||
+          !task.endDate ||
+          !minDate ||
+          !maxDate ||
+          chartDays <= 0
+        ) {
+          return null;
+        }
+
+        const taskStartDaysFromChartStart = differenceInDays(
+          task.startDate,
+          minDate
+        );
+        const taskDurationDays =
+          differenceInDays(task.endDate, task.startDate) + 1;
+
+        let taskStartOffsetPercentage: number;
+        let taskWidthPercentage: number;
+
+        if (parentTask && parentTask.startDate && parentTask.endDate) {
+          const parentStartDaysFromChartStart = differenceInDays(
+            parentTask.startDate,
+            minDate
+          );
+          const parentDurationDays =
+            differenceInDays(parentTask.endDate, parentTask.startDate) + 1;
+
+          const childStartDaysFromParentStart = differenceInDays(
+            task.startDate,
+            parentTask.startDate
+          );
+          const childDurationDays =
+            differenceInDays(task.endDate, task.startDate) + 1;
+
+          // 親タスクの期間に対する相対的な開始位置と幅を計算
+          const parentTotalChartDays = chartDays + 1;
+          const parentStartOffsetInChart =
+            (parentStartDaysFromChartStart / parentTotalChartDays) * 100;
+          const parentWidthInChart =
+            (parentDurationDays / parentTotalChartDays) * 100;
+
+          const childStartOffsetInParent =
+            (childStartDaysFromParentStart / parentDurationDays) * 100;
+          const childWidthInParent =
+            (childDurationDays / parentDurationDays) * 100;
+
+          taskStartOffsetPercentage =
+            parentStartOffsetInChart +
+            (childStartOffsetInParent / 100) * parentWidthInChart;
+          taskWidthPercentage = (childWidthInParent / 100) * parentWidthInChart;
+
+          // 親タスクの範囲を超えないように調整 (念のため)
+          if (taskStartOffsetPercentage < parentStartOffsetInChart) {
+            taskStartOffsetPercentage = parentStartOffsetInChart;
+          }
+          if (
+            taskStartOffsetPercentage + taskWidthPercentage >
+            parentStartOffsetInChart + parentWidthInChart
+          ) {
+            taskWidthPercentage =
+              parentStartOffsetInChart +
+              parentWidthInChart -
+              taskStartOffsetPercentage;
+          }
+        } else {
+          taskStartOffsetPercentage =
+            (taskStartDaysFromChartStart / (chartDays + 1)) * 100;
+          taskWidthPercentage = (taskDurationDays / (chartDays + 1)) * 100;
+        }
+
+        const indent = level * 20; // インデントの幅
+        const rowHeight = 25; // 必要に応じて調整
+        const verticalPosition = rowCounterRef.current * rowHeight;
+        rowCounterRef.current++;
+
+        // 親タスクと子タスクで異なるスタイルを適用
+        const taskBarStyle =
+          level === 0 ? styles.parentTaskBar : styles.childTaskBar;
+
+        return (
+          <div
+            key={task.id}
+            className={styles.taskRow}
+            style={{ paddingLeft: `${indent}px`, top: `${verticalPosition}px` }}
+          >
+            <div
+              className={`${styles.taskBar} ${taskBarStyle}`}
+              style={{
+                left: `${taskStartOffsetPercentage}%`,
+                width: `${taskWidthPercentage}%`,
+              }}
+            >
+              {task.name}
+            </div>
+            {expandedTasks[task.id] &&
+              renderTasksWithNesting(task.id, level + 1)}
+          </div>
+        );
+      });
+    },
+    [
+      getChildTasks,
+      tasks,
+      minDate,
+      maxDate,
+      chartDays,
+      expandedTasks,
+      isTaskVisible,
+    ]
+  );
 
   return (
-    <div className={styles.ganttChart}>
-      <div className={styles.timeline}>
-        {renderTaskBars(null, 0)}{" "}
-        {/* Render top-level tasks and their children */}
+    <div className={styles.container}>
+      <div className={styles.dateScale}>
+        {dateScale.map((date) => (
+          <div
+            key={date.toISOString()}
+            className={styles.dateLabel}
+            style={{ width: `${chartDays > 0 ? 100 / (chartDays + 1) : 100}%` }}
+          >
+            {format(date, "M/d", { locale: ja })}
+          </div>
+        ))}
       </div>
+      <div className={styles.chartArea}>{renderTasksWithNesting(null, 0)}</div>
     </div>
   );
 };
