@@ -1,0 +1,97 @@
+.formOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* 半透明の背景でフォーカスを当てる */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* 他の要素よりも前面に表示 */
+}
+
+.formContainer {
+  background-color: #fff;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); /* 少し強めの影で浮遊感を出す */
+  width: 90%;
+  max-width: 500px;
+  text-align: left;
+}
+
+.formContainer h2 {
+  color: #333;
+  margin-bottom: 30px;
+  font-size: 24px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.formGroup {
+  margin-bottom: 25px;
+}
+
+.formGroup label {
+  display: block;
+  color: #555;
+  font-size: 16px;
+  font-weight: 400;
+  margin-bottom: 8px;
+}
+
+.formGroup input[type="text"],
+.formGroup input[type="date"] {
+  width: calc(100% - 24px);
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #333;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
+
+.formGroup input[type="text"]:focus,
+.formGroup input[type="date"]:focus {
+  outline: none;
+  border-color: #007bff; /* フォーカス時の強調色 */
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* フォーカス時のリング */
+}
+
+.buttonGroup {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.saveButton,
+.cancelButton {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.saveButton {
+  background-color: #007bff; /* 保存ボタンの主要な色 */
+  color: #fff;
+}
+
+.saveButton:hover {
+  background-color: #0056b3; /* ホバー時の濃い色 */
+}
+
+.cancelButton {
+  background-color: #f0f0f0; /* キャンセルボタンの背景色 */
+  color: #333;
+}
+
+.cancelButton:hover {
+  background-color: #e0e0e0; /* ホバー時の少し濃い色 */
+}

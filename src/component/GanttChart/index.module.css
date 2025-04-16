@@ -3,7 +3,6 @@
   width: 100%;
   overflow-x: auto; /* 必要に応じて水平スクロールを有効にする */
   padding: 20px;
-  background-color: #f4f5f7; /* 明るい背景色 */
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }

@@ -1,18 +1,25 @@
+// src/component/TaskList/TaskList.tsx
 import React, { useState, useMemo } from "react";
 import styles from "./index.module.css";
 import { Task } from "../types/task";
-import TaskRow from "./TaskRow";
-import UserForm from "./UserForm";
+import TaskRow from "../TaskRow/TaskRow";
+import UserForm from "../Form/UserForm";
 
 interface TaskListProps {
   tasks: Task[];
-  onAddTask: (newTask: Task) => void; // 親コンポーネントからタスク追加関数を受け取る
+  setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
+  onAddTask: (newTask: Task) => void;
 }
 
-const TaskList: React.FC<TaskListProps> = ({ tasks, onAddTask }) => {
-  const [sortBy, setSortBy] = useState<keyof Task | null>("name"); // 初期ソート対象をnameとする
+const TaskList: React.FC<TaskListProps> = ({ tasks, onAddTask, setTasks }) => {
+  const [sortBy, setSortBy] = useState<keyof Task | null>("name");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [isAddingTask, setIsAddingTask] = useState(false);
+
+  const [nextTopLevelId, setNextTopLevelId] = useState<number>(
+    tasks.reduce((maxId, task) => Math.max(maxId, parseInt(task.id, 10)), 0) +
+      1 || 5
+  );
 
   const sortedTasks = useMemo(() => {
     if (!sortBy) {
@@ -49,12 +56,10 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onAddTask }) => {
           }
           return 0;
         }
-        // 他の型に対する比較ロジックが必要な場合はここに追加
       }
-      return 0; // 比較できない場合は順序を維持
+      return 0;
     };
 
-    // childrenがある場合は、親要素を先にソートし、子要素はそのままの順序とする（簡易的な実装）
     const sortWithChildren = (taskList: Task[]): Task[] => {
       const sorted = [...taskList].sort(compare);
       return sorted.map((task) => ({
@@ -82,18 +87,87 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onAddTask }) => {
     return "↓↑";
   };
 
-  const handleAddTaskClick = () => {
-    setIsAddingTask(true);
-  };
-
   const handleSaveNewTask = (newTaskData: Omit<Task, "id" | "children">) => {
-    const newTask: Task = { id: Date.now().toString(), ...newTaskData };
+    console.log("TaskList: handleSaveNewTask が呼び出されました", newTaskData);
+    const newTask: Task = {
+      id: nextTopLevelId.toString(),
+      ...newTaskData,
+      children: [],
+    };
     onAddTask(newTask);
+    console.log(
+      "TaskList: onAddTask (トップレベル) が呼び出されました",
+      newTask
+    );
+    setNextTopLevelId((prevId) => prevId + 1);
     setIsAddingTask(false);
   };
 
   const handleCancelAddTask = () => {
     setIsAddingTask(false);
+  };
+
+  const handleAddTaskToParent = (newTask: Task, parentId: string) => {
+    console.log("TaskList: handleAddTaskToParent が呼び出されました", {
+      newTask,
+      parentId,
+    });
+
+    const updateTasks = (taskList: Task[]): Task[] => {
+      return taskList.map((task) => {
+        if (task.id === parentId) {
+          const newChildId = generateChildId(task);
+          return {
+            ...task,
+            children: [
+              ...(task.children || []),
+              { ...newTask, id: newChildId },
+            ].map((child) => ({ ...child })),
+          };
+        } else if (task.children) {
+          return { ...task, children: updateTasks(task.children) };
+        }
+        return { ...task };
+      });
+    };
+
+    const updatedTaskList = updateTasks([...tasks]);
+    console.log("TaskList: 更新後のタスクリスト:", updatedTaskList);
+    setTasks(updatedTaskList);
+  };
+
+  const generateChildId = (parentTask: Task): string => {
+    const baseId = parentTask.id;
+    let nextNumber = 1;
+
+    if (parentTask.children && parentTask.children.length > 0) {
+      const childIds = parentTask.children.map((child) => child.id);
+      const lastChildId = childIds.reduce((maxId, currentId) => {
+        const partsMax = maxId.split(".");
+        const partsCurrent = currentId.split(".");
+        if (
+          partsMax.slice(0, -1).join(".") ===
+          partsCurrent.slice(0, -1).join(".")
+        ) {
+          const numMax = parseInt(partsMax[partsMax.length - 1], 10);
+          const numCurrent = parseInt(
+            partsCurrent[partsCurrent.length - 1],
+            10
+          );
+          return numCurrent > numMax ? currentId : maxId;
+        }
+        return maxId;
+      }, baseId + ".0");
+
+      const lastChildIdParts = lastChildId.split(".");
+      const lastNumber = parseInt(
+        lastChildIdParts[lastChildIdParts.length - 1],
+        10
+      );
+      nextNumber = lastNumber + 1;
+    }
+
+    return `${baseId}.${nextNumber}`;
   };
 
   return (
@@ -120,15 +194,15 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onAddTask }) => {
           終了日
           <span className={styles.sortIcon}>{getSortIcon("endDate")}</span>
         </div>
-        <div className={styles.headerItem}>
-          <button className={styles.addButton} onClick={handleAddTaskClick}>
-            +
-          </button>
-        </div>
+        <div className={styles.headerItem}>期間</div>
       </div>
       <div className={styles.taskItems}>
         {sortedTasks.map((task) => (
-          <TaskRow key={task.id} task={task} onAddTask={onAddTask} />
+          <TaskRow
+            key={task.id}
+            task={task}
+            onAddTask={handleAddTaskToParent}
+          />
         ))}
       </div>
     </div>

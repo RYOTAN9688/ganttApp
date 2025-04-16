@@ -20,8 +20,8 @@ const App: React.FC = () => {
     <div className={styles.appContainer}>
       <Sidebar items={menuItems} />
       <div className={styles.content}>
-        <TaskList tasks={tasks} onAddTask={addTask} />
-        <GanttChart tasks={tasks} /> {/* Render GanttChart */}
+        <TaskList tasks={tasks} onAddTask={addTask} setTasks={setTasks} />
+        <GanttChart tasks={tasks} />
       </div>
     </div>
   );
