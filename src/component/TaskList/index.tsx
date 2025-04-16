@@ -1,31 +1,84 @@
-// src/component/TaskList/TaskList.tsx
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import styles from "./index.module.css";
-import { Task } from "../types/task";
+import { Task } from "../types/task"; // パスを修正
 import TaskRow from "../TaskRow";
 import UserForm from "../Form";
+import { db } from "../../configs/firebase";
+import { addDoc, collection, Timestamp } from "firebase/firestore";
 
 interface TaskListProps {
   tasks: Task[];
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
-  onAddTask: (newTask: Task) => void;
+  onAddTask: (newTaskData: Omit<Task, "id" | "parentId">) => void;
+  onTaskAdded: () => void; // New prop to trigger data refresh in App.tsx
 }
 
-const TaskList: React.FC<TaskListProps> = ({ tasks, onAddTask, setTasks }) => {
+const TaskList: React.FC<TaskListProps> = ({
+  tasks,
+  onAddTask,
+  setTasks,
+  onTaskAdded,
+}) => {
   const [sortBy, setSortBy] = useState<keyof Task | null>("name");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [isAddingTask, setIsAddingTask] = useState(false);
 
-  const [nextTopLevelId, setNextTopLevelId] = useState<number>(
-    tasks.reduce((maxId, task) => Math.max(maxId, parseInt(task.id, 10)), 0) +
-      1 || 5
+  const handleSaveNewTask = async (
+    newTaskData: Omit<Task, "id" | "parentId">
+  ) => {
+    setIsAddingTask(false);
+    onAddTask(newTaskData);
+  };
+
+  const handleCancelAddTask = () => {
+    setIsAddingTask(false);
+  };
+
+  const handleAddTaskToParent = useCallback(
+    async (newTask: Omit<Task, "id" | "parentId">, parentId: string) => {
+      console.log("handleAddTaskToParent called with parentId:", parentId);
+
+      try {
+        const docRef = await addDoc(collection(db, "tasks"), {
+          ...newTask,
+          startDate: newTask.startDate
+            ? Timestamp.fromDate(newTask.startDate)
+            : null,
+          endDate: newTask.endDate ? Timestamp.fromDate(newTask.endDate) : null,
+          parentId: parentId,
+        });
+        setTasks((prevTasks) => [
+          ...prevTasks,
+          { id: docRef.id, parentId: parentId, ...newTask } as Task,
+        ]);
+        onTaskAdded(); // Trigger data refresh after adding a task
+      } catch (error) {
+        console.error("Error adding child task to Firestore:", error);
+      }
+    },
+    [setTasks, onTaskAdded]
   );
+
+  const handleSort = (key: keyof Task) => {
+    if (sortBy === key) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(key);
+      setSortOrder("asc");
+    }
+  };
+
+  const getSortIcon = (key: keyof Task) => {
+    if (sortBy === key) {
+      return sortOrder === "asc" ? "▲" : "▼";
+    }
+    return "";
+  };
 
   const sortedTasks = useMemo(() => {
     if (!sortBy) {
       return tasks;
     }
-
     const compare = (a: Task, b: Task) => {
       if (sortBy && a.hasOwnProperty(sortBy) && b.hasOwnProperty(sortBy)) {
         const valueA = a[sortBy];
@@ -59,141 +112,63 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onAddTask, setTasks }) => {
       }
       return 0;
     };
-
-    const sortWithChildren = (taskList: Task[]): Task[] => {
-      const sorted = [...taskList].sort(compare);
-      return sorted.map((task) => ({
-        ...task,
-        children: task.children ? sortWithChildren(task.children) : undefined,
-      }));
-    };
-
-    return sortWithChildren(tasks);
+    return [...tasks].sort(compare);
   }, [tasks, sortBy, sortOrder]);
 
-  const handleSort = (column: keyof Task) => {
-    if (column === sortBy) {
-      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-    } else {
-      setSortBy(column);
-      setSortOrder("asc");
-    }
-  };
+  const getChildTasks = useCallback(
+    (parentId: string | null, taskList: Task[]): Task[] => {
+      return taskList.filter((task) => task.parentId === parentId);
+    },
+    []
+  );
 
-  const getSortIcon = (column: keyof Task) => {
-    if (column === sortBy) {
-      return sortOrder === "asc" ? "↑" : "↓";
-    }
-    return "↓↑";
-  };
-
-  const handleSaveNewTask = (newTaskData: Omit<Task, "id" | "children">) => {
-    const newTask: Task = {
-      id: nextTopLevelId.toString(),
-      ...newTaskData,
-      children: [],
-    };
-    onAddTask(newTask);
-    setNextTopLevelId((prevId) => prevId + 1);
-    setIsAddingTask(false);
-  };
-
-  const handleCancelAddTask = () => {
-    setIsAddingTask(false);
-  };
-
-  const handleAddTaskToParent = (newTask: Task, parentId: string) => {
-    const updateTasks = (taskList: Task[]): Task[] => {
-      return taskList.map((task) => {
-        if (task.id === parentId) {
-          const newChildId = generateChildId(task);
-          return {
-            ...task,
-            children: [
-              ...(task.children || []),
-              { ...newTask, id: newChildId },
-            ].map((child) => ({ ...child })),
-          };
-        } else if (task.children) {
-          return { ...task, children: updateTasks(task.children) };
-        }
-        return { ...task };
-      });
-    };
-
-    const updatedTaskList = updateTasks([...tasks]);
-    setTasks(updatedTaskList);
-  };
-
-  const generateChildId = (parentTask: Task): string => {
-    const baseId = parentTask.id;
-    let nextNumber = 1;
-
-    if (parentTask.children && parentTask.children.length > 0) {
-      const childIds = parentTask.children.map((child) => child.id);
-      const lastChildId = childIds.reduce((maxId, currentId) => {
-        const partsMax = maxId.split(".");
-        const partsCurrent = currentId.split(".");
-        if (
-          partsMax.slice(0, -1).join(".") ===
-          partsCurrent.slice(0, -1).join(".")
-        ) {
-          const numMax = parseInt(partsMax[partsMax.length - 1], 10);
-          const numCurrent = parseInt(
-            partsCurrent[partsCurrent.length - 1],
-            10
-          );
-          return numCurrent > numMax ? currentId : maxId;
-        }
-        return maxId;
-      }, baseId + ".0");
-
-      const lastChildIdParts = lastChildId.split(".");
-      const lastNumber = parseInt(
-        lastChildIdParts[lastChildIdParts.length - 1],
-        10
-      );
-      nextNumber = lastNumber + 1;
-    }
-
-    return `${baseId}.${nextNumber}`;
-  };
+  const renderTasks = useCallback(
+    (parentTaskId: string | null = null, level: number = 0) => {
+      const childTasks = getChildTasks(parentTaskId, sortedTasks);
+      return childTasks.map((task) => (
+        <TaskRow
+          key={task.id}
+          task={task}
+          level={level}
+          onAddTask={handleAddTaskToParent}
+        >
+          {renderTasks(task.id, level + 1)}
+        </TaskRow>
+      ));
+    },
+    [getChildTasks, handleAddTaskToParent, sortedTasks]
+  );
 
   return (
-    <div className={styles.taskListContainer}>
+    <div>
       {isAddingTask && (
         <UserForm onSave={handleSaveNewTask} onCancel={handleCancelAddTask} />
       )}
       <div className={styles.header}>
         <div className={styles.headerItem} onClick={() => handleSort("name")}>
-          タスク名
-          <span className={styles.sortIcon}>{getSortIcon("name")}</span>
+          タスク名 {getSortIcon("name")}
         </div>
         <div
           className={styles.headerItem}
           onClick={() => handleSort("startDate")}
         >
-          開始日
-          <span className={styles.sortIcon}>{getSortIcon("startDate")}</span>
+          開始日 {getSortIcon("startDate")}
         </div>
         <div
           className={styles.headerItem}
           onClick={() => handleSort("endDate")}
         >
-          終了日
-          <span className={styles.sortIcon}>{getSortIcon("endDate")}</span>
+          終了日 {getSortIcon("endDate")}
         </div>
         <div className={styles.headerItem}>期間</div>
+        <button
+          className={styles.addButton}
+          onClick={() => setIsAddingTask(true)}
+        >
+          +
+        </button>
       </div>
-      <div className={styles.taskItems}>
-        {sortedTasks.map((task) => (
-          <TaskRow
-            key={task.id}
-            task={task}
-            onAddTask={handleAddTaskToParent}
-          />
-        ))}
-      </div>
+      <div className={styles.taskItems}>{renderTasks(null, 0)}</div>
     </div>
   );
 };

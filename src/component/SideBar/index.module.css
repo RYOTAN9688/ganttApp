@@ -1,7 +1,7 @@
 /* ./index.module.css */
 
 .sidebar {
-  width: 250px; /* 少し広げる */
+  width: 200px; /* 少し広げる */
   height: 100vh;
   background-color: #f9f9f9; /* より明るい背景色 */
   color: #555; /* 少し濃いめの文字色 */
@@ -14,7 +14,7 @@
 }
 
 .sidebar.collapsed {
-  width: 70px; /* 折りたたみ時の幅を少し広げる */
+  width: 30px; /* 折りたたみ時の幅を少し広げる */
 }
 
 .darkTheme {
@@ -78,8 +78,8 @@
   background: none;
   background-color: #f9f9f9;
   border: 1px solid #ccc;
-  border-radius: 30px; /* 少し丸く */
-  padding: 10px 35px; /* 少し大きめのパディング */
+  border-radius: 12px; /* 少し丸く */
+  padding: 10px 20px; /* 少し大きめのパディング */
   cursor: pointer;
   margin-right: 10px;
   font-size: 0.8rem;
@@ -158,8 +158,8 @@
 }
 
 .collapsedIcon {
-  width: 36px; /* アイコンサイズを少し大きく */
-  height: 36px;
+  width: 25px; /* アイコンサイズを少し大きく */
+  height: 25px;
   cursor: pointer;
   opacity: 0.8; /* 少し濃く */
   transition: opacity 0.3s ease, transform 0.2s ease-in-out; /* 変形アニメーションを追加 */

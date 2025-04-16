@@ -3,5 +3,5 @@ export interface Task {
   name: string;
   startDate: Date;
   endDate: Date;
-  children?: Task[]; // サブタスクを持つ可能性がある
+  parentId: string | null;
 }

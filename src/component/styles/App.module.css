@@ -7,6 +7,7 @@
 
 .sidebar {
   width: 250px; /* サイドバーの幅 */
+
   color: #fff;
   padding: 20px;
   display: flex;
@@ -37,23 +38,9 @@
   background-color: #495057;
 }
 
-.content {
-  flex-grow: 1;
-  padding: 20px;
-  display: flex;
-  gap: 20px; /* コンポーネント間のギャップ */
-}
-
-.content h2 {
-  width: 100%; /* 見出しをフル幅にする */
-  margin-bottom: 15px;
-  color: #333;
-}
-
-.taskListContainer {
+.mainContent {
   flex: 1; /* TaskListが利用可能なスペースをできるだけ取る */
   min-width: 400px; /* 最小幅 */
-  background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   padding: 20px;
@@ -68,9 +55,3 @@
   padding: 20px;
   overflow-x: auto; /* ガントチャートが横に長い場合 */
 }
-
-.ganttChartContainer h3 {
-  margin-top: 0;
-}
-
-/* 必要に応じてTaskListの個別のスタイルを調整 */

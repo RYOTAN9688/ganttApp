@@ -13,20 +13,17 @@ const GanttChart: React.FC<GanttChartProps> = ({ tasks }) => {
       return [new Date(), new Date()];
     }
 
-    let min = new Date(tasks[0].startDate);
-    let max = new Date(tasks[0].endDate);
+    let min = tasks[0].startDate ? new Date(tasks[0].startDate) : new Date();
+    let max = tasks[0].endDate ? new Date(tasks[0].endDate) : new Date();
 
-    const findMinMax = (taskList: Task[]) => {
-      taskList.forEach((task) => {
+    tasks.forEach((task) => {
+      if (task.startDate) {
         min = new Date(Math.min(min.getTime(), task.startDate.getTime()));
+      }
+      if (task.endDate) {
         max = new Date(Math.max(max.getTime(), task.endDate.getTime()));
-        if (task.children) {
-          findMinMax(task.children);
-        }
-      });
-    };
-
-    findMinMax(tasks);
+      }
+    });
 
     return [min, max];
   }, [tasks]);
@@ -43,8 +40,13 @@ const GanttChart: React.FC<GanttChartProps> = ({ tasks }) => {
   }, [minDate, maxDate]);
 
   // タスクバーの左端の位置を計算する関数
-  const getTaskLeft = (startDate: Date): number => {
-    if (!minDate || !totalDurationDays || totalDurationDays <= 1) {
+  const getTaskLeft = (startDate: Date | null | undefined): number => {
+    if (
+      !minDate ||
+      !totalDurationDays ||
+      totalDurationDays <= 1 ||
+      !startDate
+    ) {
       return 0;
     }
     const oneDay = 24 * 60 * 60 * 1000;
@@ -55,8 +57,16 @@ const GanttChart: React.FC<GanttChartProps> = ({ tasks }) => {
   };
 
   // タスクバーの幅を計算する関数
-  const getTaskWidth = (startDate: Date, endDate: Date): number => {
-    if (!totalDurationDays || totalDurationDays <= 1) {
+  const getTaskWidth = (
+    startDate: Date | null | undefined,
+    endDate: Date | null | undefined
+  ): number => {
+    if (
+      !totalDurationDays ||
+      totalDurationDays <= 1 ||
+      !startDate ||
+      !endDate
+    ) {
       return 0;
     }
     const oneDay = 24 * 60 * 60 * 1000;
@@ -66,38 +76,36 @@ const GanttChart: React.FC<GanttChartProps> = ({ tasks }) => {
     return (durationDays / totalDurationDays) * 100; // 全期間に対する割合（パーセント）
   };
 
+  const getChildTasks = (parentId: string | null): Task[] => {
+    return tasks.filter((task) => task.parentId === parentId);
+  };
+
+  const renderTaskBars = (
+    parentTaskId: string | null = null,
+    level: number = 0
+  ) => {
+    const childTasks = getChildTasks(parentTaskId);
+    return childTasks.map((task) => (
+      <div
+        key={task.id}
+        className={`${styles.task} ${level > 0 ? styles.childTask : ""}`}
+        style={{
+          left: `${getTaskLeft(task.startDate)}%`,
+          width: `${getTaskWidth(task.startDate, task.endDate)}%`,
+          paddingLeft: `${level * 20}px`, // Indentation for child tasks
+        }}
+      >
+        {task.name}
+        {renderTaskBars(task.id, level + 1)} {/* Recursively render children */}
+      </div>
+    ));
+  };
+
   return (
     <div className={styles.ganttChart}>
       <div className={styles.timeline}>
-        {tasks.map((task) => (
-          <React.Fragment key={task.id}>
-            <div
-              className={styles.task}
-              style={{
-                left: `${getTaskLeft(task.startDate)}%`,
-                width: `${getTaskWidth(task.startDate, task.endDate)}%`,
-              }}
-            >
-              {task.name}
-            </div>
-            {task.children &&
-              task.children.map((childTask) => (
-                <div
-                  key={childTask.id}
-                  className={`${styles.task} ${styles.childTask}`}
-                  style={{
-                    left: `${getTaskLeft(childTask.startDate)}%`,
-                    width: `${getTaskWidth(
-                      childTask.startDate,
-                      childTask.endDate
-                    )}%`,
-                  }}
-                >
-                  {childTask.name}
-                </div>
-              ))}
-          </React.Fragment>
-        ))}
+        {renderTaskBars(null, 0)}{" "}
+        {/* Render top-level tasks and their children */}
       </div>
     </div>
   );

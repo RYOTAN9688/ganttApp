@@ -30,9 +30,14 @@ const Sidebar: React.FC<SidebarProps> = ({ items }) => {
           &lt;
         </button>
       </div>
-
       {isCollapsed ? (
         <div className={styles.collapsedIcons}>
+          <img
+            src={theme === "willow" ? ThemeDarkIcon : ThemeLightIcon}
+            alt="Theme"
+            className={styles.collapsedIcon}
+            onClick={toggleTheme}
+          />
           <img
             src={HomeIcon}
             alt="Home"
@@ -48,12 +53,6 @@ const Sidebar: React.FC<SidebarProps> = ({ items }) => {
             onClick={() => {
               console.log("Go to Admin");
             }}
-          />
-          <img
-            src={theme === "willow" ? ThemeDarkIcon : ThemeLightIcon}
-            alt="Theme"
-            className={styles.collapsedIcon}
-            onClick={toggleTheme}
           />
         </div>
       ) : (
