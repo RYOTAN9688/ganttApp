@@ -3,7 +3,7 @@ import styles from "./index.module.css";
 import { Task } from "../types/task";
 
 interface UserFormProps {
-  onSave: (newTask: Omit<Task, "id" | "children">) => void;
+  onSave: (newTask: Omit<Task, "id" | "parentId">) => void; // children を parentId に変更
   onCancel: () => void;
   initialName?: string;
   initialStartDate?: string;

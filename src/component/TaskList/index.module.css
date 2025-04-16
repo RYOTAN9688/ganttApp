@@ -1,18 +1,16 @@
-.taskListContainer {
-  width: 100%;
-  overflow: hidden;
-}
-
 .header {
   display: flex;
-  padding: 8px 0; /* 最初のCSSから採用 */
-  border-bottom: 1px solid #333;
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
   align-items: center;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  font-size: 0.9em;
 }
 
 .headerItem {
-  padding: 8px;
-  font-weight: bold;
+  padding: 12px 0;
+  font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
@@ -20,103 +18,41 @@
 }
 
 .headerItem:nth-child(1) {
-  flex: 2; /* タスク名 */
+  flex: 1.5;
 }
 
 .headerItem:nth-child(2) {
-  flex: 1; /* 開始日 */
+  flex: 1;
   text-align: left;
 }
 
 .headerItem:nth-child(3) {
-  flex: 1; /* 終了日 */
+  flex: 1;
   text-align: left;
 }
 
 .headerItem:nth-child(4) {
-  flex: 1; /* 期間 */
+  flex: 1;
   text-align: left;
 }
 
 .taskItems {
-  margin-bottom: 10px; /* 最初のCSSから採用 */
-}
-
-.taskItem {
-  display: flex;
-  padding: 8px 0; /* 最初のCSSから採用 */
-  border-bottom: 1px solid #eee; /* 最初のCSSから採用 */
-  align-items: center;
-}
-
-.taskItem:last-child {
-  border-bottom: none;
-}
-
-.taskNameCell {
-  flex: 2;
-  padding: 8px;
-  display: flex;
-  align-items: center;
-  text-align: left; /* 最初のCSSから採用 */
-}
-
-.taskDate {
-  flex: 1;
-  padding: 8px;
-  text-align: left; /* 最初のCSSから採用 */
-}
-
-.taskEndDate {
-  flex: 1;
-  padding: 8px;
-  text-align: left; /* 最初のCSSから採用 */
-}
-
-.taskDuration {
-  flex: 1;
-  padding: 8px;
-  text-align: left; /* 最初のCSSから採用 */
-}
-
-.taskActions {
-  flex: 0.5;
-  padding: 8px;
-  display: flex;
-  justify-content: flex-end;
-  text-align: left; /* 最初のCSSから採用 */
-}
-
-.expandIcon {
-  margin-right: 8px; /* 最初のCSSから採用 */
-  cursor: pointer;
-  color: #ccc; /* 2番目のCSSから採用 */
-}
-
-.addChildButton {
-  padding: 5px 10px;
-  background-color: #28a745; /* 最初のCSSから採用 */
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9em;
-}
-
-.addChildButton:hover {
-  background-color: #1e7e34; /* 最初のCSSから採用 */
+  padding: 0;
+  flex-grow: 1;
 }
 
 .addButton {
-  padding: 5px 10px; /* 最初のCSSから採用 */
+  display: block;
+  padding: 10px 16px;
   background-color: #007bff;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 0.9em; /* 最初のCSSから採用 */
+  font-size: 1em;
   transition: background-color 0.3s ease;
-  margin-top: 0; /* 最初のCSSから採用 */
+  margin: 16px auto;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .addButton:hover {
@@ -125,6 +61,6 @@
 
 .sortIcon {
   margin-left: 5px;
-  font-size: 0.8em;
-  color: #ccc; /* 2番目のCSSから採用 */
+  font-size: 0.9em;
+  color: #888;
 }

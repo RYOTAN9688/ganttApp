@@ -6,18 +6,23 @@ import UserForm from "../Form";
 
 interface TaskRowProps {
   task: Task;
-  indentLevel?: number;
-  onAddTask?: (newTask: Task, parentId: string) => void;
+  level?: number; // indentLevel から level に変更 (現在のロジックに合わせる)
+  onAddTask?: (
+    newTask: Omit<Task, "id" | "parentId">,
+    parentId: string
+  ) => void; // onAddTask の型を修正
+  children?: React.ReactNode; // TaskList から子要素が渡されることを想定
 }
 
 const TaskRow: React.FC<TaskRowProps> = ({
   task,
-  indentLevel = 0,
+  level = 0,
   onAddTask,
+  children,
 }) => {
-  const [isExpanded, setIsExpanded] = useState(true);
-  const hasChildren = task.children && task.children.length > 0;
-  const indentStyle = { paddingLeft: `${indentLevel * 20}px` };
+  const [isExpanded, setIsExpanded] = useState(false);
+  const hasChildren = !!children; // children prop が存在するかどうかで子を持つか判断
+  const indentStyle = { paddingLeft: `${level * 20}px` };
   const [isAddingChild, setIsAddingChild] = useState(false);
 
   const toggleExpand = () => {
@@ -28,10 +33,15 @@ const TaskRow: React.FC<TaskRowProps> = ({
     setIsAddingChild(true);
   };
 
-  const handleSaveChildTask = (newTaskData: Omit<Task, "id" | "children">) => {
+  const handleSaveChildTask = (newTaskData: Omit<Task, "id" | "parentId">) => {
+    // 型を修正
     if (onAddTask) {
       onAddTask(
-        { id: Date.now().toString(), ...newTaskData, children: [] },
+        {
+          id: Date.now().toString(),
+          ...newTaskData,
+          parentId: task.id,
+        } as Task, // parentId を設定
         task.id
       );
       setIsAddingChild(false);
@@ -42,14 +52,25 @@ const TaskRow: React.FC<TaskRowProps> = ({
     setIsAddingChild(false);
   };
 
-  const formatDate = (date: Date): string => {
+  const formatDate = (date: Date | null | undefined): string => {
+    // Date 型を修正
+    if (!date) {
+      return "-";
+    }
     const year = date.getFullYear();
     const month = (date.getMonth() + 1).toString().padStart(2, "0");
     const day = date.getDate().toString().padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
 
-  const calculateDuration = (startDate: Date, endDate: Date): number => {
+  const calculateDuration = (
+    startDate: Date | null | undefined,
+    endDate: Date | null | undefined
+  ): number => {
+    // Date 型を修正
+    if (!startDate || !endDate) {
+      return 0;
+    }
     const oneDay = 24 * 60 * 60 * 1000;
     return (
       Math.round(Math.abs((endDate.getTime() - startDate.getTime()) / oneDay)) +
@@ -86,15 +107,7 @@ const TaskRow: React.FC<TaskRowProps> = ({
           </button>
         </div>
       </div>
-      {isExpanded &&
-        task.children?.map((childTask) => (
-          <TaskRow
-            key={childTask.id}
-            task={childTask}
-            indentLevel={indentLevel + 1}
-            onAddTask={onAddTask}
-          />
-        ))}
+      {isExpanded && children} {/* TaskList から渡された子要素を表示 */}
       {isAddingChild && (
         <UserForm
           initialName="New Child Task"
