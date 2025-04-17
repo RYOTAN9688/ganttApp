@@ -1,11 +1,3 @@
-/* src/component/TaskList/index.module.css */
-.taskListContainer {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
 .headerRow {
   display: flex;
   padding: 16px;
@@ -26,7 +18,7 @@
 }
 
 .headerItem:nth-child(1) {
-  flex: 2;
+  flex: 1.5;
 }
 
 .headerItem:nth-child(2) {
@@ -40,13 +32,8 @@
 }
 
 .headerItem:nth-child(4) {
-  flex: 1;
+  flex: 0.5;
   text-align: left;
-}
-
-.taskItems {
-  padding: 0;
-  flex-grow: 1;
 }
 
 .addButton {
@@ -59,16 +46,10 @@
   cursor: pointer;
   font-size: 1em;
   transition: background-color 0.3s ease;
-  margin: 16px auto;
+  margin-left: 16px; /* Adjust margin as needed */
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .addButton:hover {
   background-color: #0056b3;
-}
-
-.sortIcon {
-  margin-left: 5px;
-  font-size: 0.9em;
-  color: #888;
 }

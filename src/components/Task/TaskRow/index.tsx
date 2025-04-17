@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import styles from "./index.module.css";
-import { Task } from "../types/task";
+import { Task } from "../../../types/task";
 import { format, differenceInDays } from "date-fns";
-import UserForm from "../Form";
+import UserForm from "../../Form";
 
 interface TaskRowProps {
   task: Task;
@@ -21,13 +21,13 @@ const TaskRow: React.FC<TaskRowProps> = ({
   children,
   toggleExpand,
   expandedTasks,
-  onTaskClick, // Receive the new prop
+  onTaskClick,
 }) => {
   const [isAddingChild, setIsAddingChild] = useState(false);
 
-  const handleAddChildTask = (newTask: Omit<Task, "id" | "parentId">) => {
+  const handleAddChildTask = async (newTask: Omit<Task, "id" | "parentId">) => {
     setIsAddingChild(false);
-    onAddTask(newTask, task.id);
+    await onAddTask(newTask, task.id);
   };
 
   const handleCancelAddChild = () => {

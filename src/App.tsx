@@ -1,10 +1,10 @@
 // App.tsx
 import { useState } from "react";
-import TaskList from "./component/TaskList/";
-import Sidebar from "./component/SideBar/";
-import GanttChart from "./component/GanttChart"; // インポート
-import { Task } from "./component/types/task";
-import styles from "./component/styles/App.module.css";
+import TaskList from "./components/Task/TaskList";
+import Sidebar from "./components/SideBar";
+import GanttChart from "./components/GanttChart"; // インポート
+import { Task } from "./types/task";
+import styles from "./styles/App.module.css";
 
 function App() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -12,6 +12,8 @@ function App() {
   const [expandedTasks, setExpandedTasks] = useState<{
     [taskId: string]: boolean;
   }>({}); // App で保持
+  const [parentTaskColor, setParentTaskColor] = useState("#28a745");
+  const [childTaskColor, setChildTaskColor] = useState("#007bff");
 
   const toggleExpand = (taskId: string) => {
     setExpandedTasks((prev) => ({ ...prev, [taskId]: !prev[taskId] }));
@@ -27,10 +29,19 @@ function App() {
             setTasks={setTasks}
             expandedTasks={expandedTasks}
             toggleExpand={toggleExpand}
+            parentTaskColor={parentTaskColor}
+            childTaskColor={childTaskColor}
+            onParentTaskColorChange={setParentTaskColor}
+            onChildTaskColorChange={setChildTaskColor}
           />
         </div>
         <div>
-          <GanttChart tasks={tasks} expandedTasks={expandedTasks} />
+          <GanttChart
+            tasks={tasks}
+            expandedTasks={expandedTasks}
+            parentTaskColor={parentTaskColor}
+            childTaskColor={childTaskColor}
+          />
         </div>
       </div>
     </div>

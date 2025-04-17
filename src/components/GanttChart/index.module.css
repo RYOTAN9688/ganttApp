@@ -1,0 +1,67 @@
+/* src/component/GanttChart/index.module.css */
+.container {
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; /* よりモダンなフォント */
+}
+
+.dateScale {
+  display: flex;
+  border-bottom: 2px solid #e0e0e0; /* 少し太めの区切り線 */
+  margin-bottom: 15px;
+}
+
+.dateLabel {
+  flex: 1;
+  padding: 10px 0; /* 少し余白を増やす */
+  text-align: center;
+  font-size: 0.9em; /* 少し大きく */
+  color: #555; /* 少し濃いめの色 */
+  border-right: 1px solid #f0f0f0; /* 薄い区切り線 */
+  box-sizing: border-box;
+}
+
+.dateLabel:last-child {
+  border-right: none;
+}
+
+.chartArea {
+  position: relative;
+  padding-top: 15px;
+}
+
+.taskRow {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  margin-bottom: 8px; /* 少し余白を増やす */
+}
+
+.taskBar {
+  position: absolute;
+  top: 0;
+  height: 40px; /* 高さを少し大きく */
+  color: white;
+  padding: 8px 10px; /* パディングを調整 */
+  font-size: 0.85em;
+  line-height: 1; /* 垂直方向中央揃えのため調整 */
+  border-radius: 5px; /* 角を少し丸く */
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
+  display: flex; /* 垂直方向中央揃えのため */
+  align-items: center; /* 垂直方向中央揃え */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 少し影をつける */
+  border: 1px solid rgba(0, 0, 0, 0.05); /* 薄いボーダー */
+}
+
+.parentTaskBar {
+  background-color: #007bff; /* 青色を基調に */
+}
+
+.childTaskBar {
+  background-color: #6c757d; /* 少し落ち着いた灰色 */
+  color: white; /* 子タスクの文字色を白に */
+}
