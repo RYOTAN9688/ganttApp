@@ -14,7 +14,7 @@
   flex-direction: column;
 }
 
-h3 {
+.h3 {
   margin-top: 0;
   margin-bottom: 20px;
 }
@@ -48,27 +48,37 @@ h3 {
   box-sizing: border-box;
 }
 
-.buttonContainer {
+.buttonGroup {
   margin-top: 20px;
   display: flex;
+  flex-direction: column; /* Arrange buttons vertically */
   gap: 10px;
-  justify-content: flex-end;
+  justify-content: flex-start; /* Align buttons to the start */
 }
 
-.buttonContainer button {
+.buttonGroup button {
   padding: 10px 15px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-size: 16px;
+  width: 100%; /* Make buttons take full width */
+  box-sizing: border-box;
 }
 
-.buttonContainer button:first-child {
+.saveButton {
   background-color: #007bff;
   color: white;
 }
 
-.buttonContainer button:last-child {
+.deleteButton {
+  background-color: #dc3545; /* Red color for delete */
+  color: white;
+}
+
+.closeButton {
+  padding: 10px;
+  font-size: 20px;
   background-color: #6c757d;
   color: white;
 }
@@ -100,12 +110,78 @@ h3 {
   border-color: #6272a4;
 }
 
-.sidebarContainer.darkTheme .buttonContainer button:first-child.darkButton {
+.sidebarContainer.darkTheme .saveButton.darkButton {
   background-color: #6272a4;
   color: #f8f8f2;
 }
 
-.sidebarContainer.darkTheme .buttonContainer button:last-child.darkButton {
+.sidebarContainer.darkTheme .deleteButton.darkButton {
+  background-color: #e45649; /* Slightly lighter red for dark theme */
+  color: #f8f8f2;
+}
+
+.sidebarContainer.darkTheme .closeButton.darkButton {
   background-color: #4d4d4d;
+  color: #f8f8f2;
+}
+
+.deleteConfirmation {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #fde0e0;
+  border: 1px solid #e74c3c;
+  border-radius: 4px;
+}
+
+.deleteConfirmation p {
+  margin-bottom: 10px;
+  color: #c0392b;
+}
+
+.confirmationButtons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.confirmDeleteButton {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.cancelDeleteButton {
+  background-color: #bdc3c7;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+/* Dark Theme Styles */
+/* ... (previous dark theme styles) ... */
+
+.sidebarContainer.darkTheme .deleteConfirmation {
+  background-color: #43282b;
+  border-color: #e45649;
+}
+
+.sidebarContainer.darkTheme .deleteConfirmation p {
+  color: #e45649;
+}
+
+.sidebarContainer.darkTheme .confirmDeleteButton {
+  background-color: #e45649;
+  color: #f8f8f2;
+}
+
+.sidebarContainer.darkTheme .cancelDeleteButton {
+  background-color: #5a5a5a;
   color: #f8f8f2;
 }

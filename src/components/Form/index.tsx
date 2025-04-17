@@ -1,50 +1,39 @@
+// src/component/Form/index.tsx
 import React, { useState } from "react";
+import { Task } from "../../types/task";
 import styles from "./index.module.css";
-import { Task } from "../types/task";
+import { format } from "date-fns";
 
 interface UserFormProps {
-  onSave: (newTask: Omit<Task, "id" | "parentId">) => void; // children を parentId に変更
+  onSave: (taskData: Omit<Task, "id" | "parentId">) => Promise<void>;
   onCancel: () => void;
-  initialName?: string;
-  initialStartDate?: string;
-  initialEndDate?: string;
+  initialTask?: Omit<Task, "id" | "parentId">;
 }
 
 const UserForm: React.FC<UserFormProps> = ({
   onSave,
   onCancel,
-  initialName = "",
-  initialStartDate = new Date().toISOString().slice(0, 10),
-  initialEndDate = new Date().toISOString().slice(0, 10),
+  initialTask,
 }) => {
-  const [name, setName] = useState(initialName);
-  const [startDate, setStartDate] = useState<string>(initialStartDate);
-  const [endDate, setEndDate] = useState<string>(initialEndDate);
+  const [name, setName] = useState(initialTask?.name || "");
+  const [startDate, setStartDate] = useState<Date | null>(
+    initialTask?.startDate || null
+  );
+  const [endDate, setEndDate] = useState<Date | null>(
+    initialTask?.endDate || null
+  );
 
   const handleSubmit = (event: React.FormEvent) => {
-    console.log("UserForm: handleSubmit 関数が実行されました");
     event.preventDefault();
-    console.log("UserForm: handleSubmit が実行されました", {
-      name,
-      startDate,
-      endDate,
-    });
-    console.log("UserForm: onSave を呼び出す前");
-    onSave({
-      name,
-      startDate: new Date(startDate),
-      endDate: new Date(endDate),
-    });
-    console.log("UserForm: onSave を呼び出した後");
-    setName("");
-    setStartDate(new Date().toISOString().slice(0, 10));
-    setEndDate(new Date().toISOString().slice(0, 10));
+    if (name) {
+      onSave({ name, startDate, endDate });
+    }
   };
 
   return (
     <div className={styles.formOverlay}>
       <div className={styles.formContainer}>
-        <h2>新しいタスクを追加</h2>
+        <h2>{initialTask ? "タスクを編集" : "新しいタスクを追加"}</h2>
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
             <label htmlFor="name">タスク名:</label>
@@ -61,9 +50,10 @@ const UserForm: React.FC<UserFormProps> = ({
             <input
               type="date"
               id="startDate"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              required
+              value={startDate ? format(startDate, "yyyy-MM-dd") : ""}
+              onChange={(e) =>
+                setStartDate(e.target.value ? new Date(e.target.value) : null)
+              }
             />
           </div>
           <div className={styles.formGroup}>
@@ -71,9 +61,10 @@ const UserForm: React.FC<UserFormProps> = ({
             <input
               type="date"
               id="endDate"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              required
+              value={endDate ? format(endDate, "yyyy-MM-dd") : ""}
+              onChange={(e) =>
+                setEndDate(e.target.value ? new Date(e.target.value) : null)
+              }
             />
           </div>
           <div className={styles.buttonGroup}>
@@ -82,8 +73,8 @@ const UserForm: React.FC<UserFormProps> = ({
             </button>
             <button
               type="button"
-              className={styles.cancelButton}
               onClick={onCancel}
+              className={styles.cancelButton}
             >
               キャンセル
             </button>

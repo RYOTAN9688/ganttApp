@@ -1,16 +1,24 @@
 // src/component/GanttChart/index.tsx
-import React, { useMemo, useCallback, useRef, useEffect } from "react";
-import { Task } from "../types/task";
+import React, { useMemo, useCallback } from "react";
+import { Task } from "../../types/task";
 import styles from "./index.module.css";
 import { format, addDays, differenceInDays } from "date-fns";
 import { ja } from "date-fns/locale";
+import { JSX } from "react/jsx-runtime";
 
 interface GanttChartProps {
   tasks: Task[];
-  expandedTasks: { [taskId: string]: boolean }; // 追加
+  expandedTasks: { [taskId: string]: boolean };
+  parentTaskColor?: string;
+  childTaskColor?: string;
 }
 
-const GanttChart: React.FC<GanttChartProps> = ({ tasks, expandedTasks }) => {
+const GanttChart: React.FC<GanttChartProps> = ({
+  tasks,
+  expandedTasks,
+  parentTaskColor: defaultParentTaskColor = "#28a745",
+  childTaskColor: defaultChildTaskColor = "#007bff",
+}) => {
   const [minDate, maxDate] = useMemo(() => {
     if (!tasks || tasks.length === 0) {
       return [null, null];
@@ -58,25 +66,29 @@ const GanttChart: React.FC<GanttChartProps> = ({ tasks, expandedTasks }) => {
   const isTaskVisible = useCallback(
     (task: Task): boolean => {
       if (!task.parentId) {
-        return true; // トップレベルタスクは常に表示
+        return true;
       }
-      return !!expandedTasks[task.parentId]; // 親タスクが展開されていれば表示
+      return !!expandedTasks[task.parentId];
     },
     [expandedTasks]
   );
 
-  const rowCounterRef = useRef(0);
-
-  useEffect(() => {
-    rowCounterRef.current = 0; // Reset counter on tasks change or expansion
-  }, [tasks, expandedTasks]);
+  const rowHeight = 45; // タスクバーの高さに合わせる
+  const verticalSpacing = 5; // タスク間の垂直方向の間隔
 
   const renderTasksWithNesting = useCallback(
-    (parentTaskId: string | null = null, level: number = 0) => {
+    (
+      parentTaskId: string | null = null,
+      level: number = 0,
+      rowIndex: number = 0
+    ): JSX.Element[] => {
       const childTasks = getChildTasks(parentTaskId, tasks).filter(
         isTaskVisible
-      ); // 可視タスクのみフィルタリング
-      return childTasks.map((task) => {
+      );
+      let rendered: JSX.Element[] = [];
+      let currentRowIndex = rowIndex;
+
+      childTasks.forEach((task) => {
         const parentTask = tasks.find((t) => t.id === parentTaskId);
 
         if (
@@ -86,7 +98,7 @@ const GanttChart: React.FC<GanttChartProps> = ({ tasks, expandedTasks }) => {
           !maxDate ||
           chartDays <= 0
         ) {
-          return null;
+          return;
         }
 
         const taskStartDaysFromChartStart = differenceInDays(
@@ -114,7 +126,6 @@ const GanttChart: React.FC<GanttChartProps> = ({ tasks, expandedTasks }) => {
           const childDurationDays =
             differenceInDays(task.endDate, task.startDate) + 1;
 
-          // 親タスクの期間に対する相対的な開始位置と幅を計算
           const parentTotalChartDays = chartDays + 1;
           const parentStartOffsetInChart =
             (parentStartDaysFromChartStart / parentTotalChartDays) * 100;
@@ -131,7 +142,6 @@ const GanttChart: React.FC<GanttChartProps> = ({ tasks, expandedTasks }) => {
             (childStartOffsetInParent / 100) * parentWidthInChart;
           taskWidthPercentage = (childWidthInParent / 100) * parentWidthInChart;
 
-          // 親タスクの範囲を超えないように調整 (念のため)
           if (taskStartOffsetPercentage < parentStartOffsetInChart) {
             taskStartOffsetPercentage = parentStartOffsetInChart;
           }
@@ -150,16 +160,18 @@ const GanttChart: React.FC<GanttChartProps> = ({ tasks, expandedTasks }) => {
           taskWidthPercentage = (taskDurationDays / (chartDays + 1)) * 100;
         }
 
-        const indent = level * 20; // インデントの幅
-        const rowHeight = 25; // 必要に応じて調整
-        const verticalPosition = rowCounterRef.current * rowHeight;
-        rowCounterRef.current++;
+        const indent = level * 20;
+        const verticalPosition =
+          currentRowIndex * (rowHeight + verticalSpacing);
 
-        // 親タスクと子タスクで異なるスタイルを適用
         const taskBarStyle =
           level === 0 ? styles.parentTaskBar : styles.childTaskBar;
+        const taskColor =
+          level === 0
+            ? task.parentColor || defaultParentTaskColor
+            : task.childColor || defaultChildTaskColor;
 
-        return (
+        rendered.push(
           <div
             key={task.id}
             className={styles.taskRow}
@@ -170,15 +182,30 @@ const GanttChart: React.FC<GanttChartProps> = ({ tasks, expandedTasks }) => {
               style={{
                 left: `${taskStartOffsetPercentage}%`,
                 width: `${taskWidthPercentage}%`,
+                backgroundColor: taskColor,
+                height: `${rowHeight}px`, // 明示的に高さを設定
               }}
             >
               {task.name}
             </div>
-            {expandedTasks[task.id] &&
-              renderTasksWithNesting(task.id, level + 1)}
           </div>
         );
+
+        currentRowIndex++;
+
+        if (expandedTasks[task.id]) {
+          const nestedRendered = renderTasksWithNesting(
+            task.id,
+            level + 1,
+            currentRowIndex
+          );
+          rendered = rendered.concat(nestedRendered);
+          currentRowIndex += getChildTasks(task.id, tasks).filter(
+            isTaskVisible
+          ).length;
+        }
       });
+      return rendered;
     },
     [
       getChildTasks,
@@ -188,6 +215,8 @@ const GanttChart: React.FC<GanttChartProps> = ({ tasks, expandedTasks }) => {
       chartDays,
       expandedTasks,
       isTaskVisible,
+      defaultParentTaskColor,
+      defaultChildTaskColor,
     ]
   );
 
@@ -204,7 +233,9 @@ const GanttChart: React.FC<GanttChartProps> = ({ tasks, expandedTasks }) => {
           </div>
         ))}
       </div>
-      <div className={styles.chartArea}>{renderTasksWithNesting(null, 0)}</div>
+      <div className={styles.chartArea}>
+        {renderTasksWithNesting(null, 0, 0)}
+      </div>
     </div>
   );
 };
